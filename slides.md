@@ -56,7 +56,7 @@ A Comprehensive Guide to Principles, Training Methods, and Applications
     LSE | Stats-Powered AI
   </div> -->
   <div class="text-2xl opacity-80 pt-1">
-    Shijin Gong
+    Modified and Presented by Shijin Gong
   </div>
   University of Science and Technology of China (USTC)
 </div>
