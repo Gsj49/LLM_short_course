@@ -2316,6 +2316,69 @@ Label = -100 means "ignore this token in loss computation" (PyTorch convention)
 </div>
 
 ---
+
+# Accurate Predictions on Small Data with a Tabular Foundation Model
+
+<div class="text-sm leading-relaxed">
+<b>Nature paper:</b> <i>Accurate predictions on small data with a tabular foundation model</i>.
+The model is <b>TabPFN</b> (Tabular Prior-data Fitted Network), designed for tabular prediction with limited labeled data.
+</div>
+
+<div class="grid grid-cols-2 gap-6 mt-4 text-sm leading-relaxed">
+  <div>
+    <div class="font-semibold mb-2">Why this matters</div>
+    <ul>
+      <li>Many real tabular tasks only have tens to thousands of labeled examples.</li>
+      <li>Traditional pipelines often require expensive model/hyperparameter search.</li>
+      <li>In practice, we want strong performance with minimal tuning.</li>
+    </ul>
+  </div>
+  <div>
+    <div class="font-semibold mb-2">Core idea of TabPFN</div>
+    <ul>
+      <li>Pretrain a transformer on many synthetic tabular tasks sampled from broad priors.</li>
+      <li>At inference, condition on training examples and predict test labels in-context.</li>
+      <li>This approximates Bayesian prediction without per-task gradient fine-tuning.</li>
+    </ul>
+  </div>
+</div>
+
+---
+
+# TabPFN: Visual Overview
+
+<div class="flex justify-center items-center mt-3">
+  <img src="/figs/tabpfn.jpg" class="rounded shadow w-4/5" />
+</div>
+
+<div class="text-xs opacity-75 mt-2 text-center">
+TabPFN learns a prior over tabular tasks, then performs fast posterior-style prediction from context.
+</div>
+
+---
+
+# Why TabPFN Is Relevant Here
+
+<div class="grid grid-cols-2 gap-6 mt-3 text-sm leading-relaxed">
+  <div>
+    <div class="font-semibold mb-2">Key takeaways</div>
+    <ul>
+      <li>Foundation-model priors can work beyond text generation.</li>
+      <li>Small-data tabular prediction can benefit from pretraining on task distributions.</li>
+      <li>This opens a path to strong performance with simpler downstream workflows.</li>
+    </ul>
+  </div>
+  <div>
+    <div class="font-semibold mb-2">Bridge to Part 3</div>
+    <ul>
+      <li>Pretraining gives broad capability, but objectives still need alignment.</li>
+      <li>Reinforcement learning helps align models to task-level goals and constraints.</li>
+      <li>Next, we cover RLHF and RLVR for controllable model behavior.</li>
+    </ul>
+  </div>
+</div>
+
+---
 layout: section
 name: part-3
 routeAlias: part-3
@@ -3222,6 +3285,34 @@ if a task can be expressed in natural language with clear reasoning steps, LLMs 
       <b>...</b>
     </div>
   </div>
+</div>
+---
+
+# Medical
+
+<div class="text-sm leading-relaxed mb-2">
+Recent work shows that RLVR/GRPO is becoming a common recipe for medical reasoning:
+it improves domain alignment, structured outputs, and safety-aware behavior.
+</div>
+
+```mermaid
+timeline
+  title "Representative public works on RLVR/GRPO for medical reasoning and diagnosis"
+  2025-02 : Med-RLVR (RLVR/PPO for medical MCQA) : MedVLM-R1 (medical VLM + RL reasoning)
+  2025-03 : Med-R1 (8-modality medical VQA, GRPO)
+  2025-05 : EHRMIND (EHR reasoning with RLVR/GRPO) : Patho-R1 (pathology multimodal RL, GRPO-family)
+  2025-08 : MedVLThinker (RLVR comparisons on multimodal medical benchmarks) : MedReasoner (pixel-level localization/segmentation, GRPO)
+  2025-10 : EHR-R1 (EHR-Ins + GRPO, 42 tasks)
+  2025-12 : Clinical-R1 (CRPO with multi-objective verifiable RL) : MRG-R1 (radiology report generation, GRPO + CheXbert reward)
+  2026-01 : CURE-Med (multilingual medical reasoning, GRPO)
+  2026-02 : MediX-R1 (open medical multimodal RL with composite rewards)
+```
+
+<div class="text-xs leading-snug mt-2">
+<ul>
+  <li>Trend: from single-task QA toward multimodal, multi-task, and clinically grounded workflows.</li>
+  <li>Core idea: design verifiable rewards for correctness, evidence grounding, safety, and format consistency.</li>
+</ul>
 </div>
 
 ---
