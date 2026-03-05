@@ -2351,14 +2351,12 @@ The model is <b>TabPFN</b> (Tabular Prior-data Fitted Network), designed for tab
   <img src="/figs/tabpfn.jpg" class="rounded shadow w-4/5" />
 </div>
 
-<div class="text-xs opacity-75 mt-2 text-center">
-TabPFN learns a prior over tabular tasks, then performs fast posterior-style prediction from context.
-</div>
-
 ---
 
-<div class="w-full h-[85vh] -mt-4">
-  <img src="/figs/tabpfn2.jpg" class="w-full h-full object-cover" />
+# TabPFN: Additional View
+
+<div class="flex justify-center items-center mt-3">
+  <img src="/figs/tabpfn2.jpg" class="rounded shadow w-4/5" />
 </div>
 
 ---
