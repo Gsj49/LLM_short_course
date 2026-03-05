@@ -2,7 +2,7 @@
 
 A comprehensive short course covering the principles and training methods of Large Language Models, including Pre-training, Supervised Fine-tuning (SFT), Reinforcement Learning from Human Feedback (RLHF), and Reinforcement Learning from Verifiable Rewards (RLVR).
 
-🌐 **Live Slide**: [https://noncollapse.github.io/LLM_short_course/](https://noncollapse.github.io/LLM_short_course/)
+🌐 **Live Slide**: [https://gsj49.github.io/LLM_short_course/](https://gsj49.github.io/LLM_short_course/)
 
 ## ✨ Features
 
