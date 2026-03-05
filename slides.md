@@ -2357,6 +2357,12 @@ TabPFN learns a prior over tabular tasks, then performs fast posterior-style pre
 
 ---
 
+<div class="w-full h-[85vh] -mt-4">
+  <img src="/figs/tabpfn2.jpg" class="w-full h-full object-cover" />
+</div>
+
+---
+
 # Why TabPFN Is Relevant Here
 
 <div class="grid grid-cols-2 gap-6 mt-3 text-sm leading-relaxed">
