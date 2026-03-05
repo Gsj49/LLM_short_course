@@ -42,28 +42,23 @@ code {
 }
 </style>
 
-# **Large Language Models (LLM)**
+# **Large Language Models & Reinforcement Learning**
 
-A Comprehensive Guide to Principles and Training Method
+A Comprehensive Guide to Principles, Training Methods, and Applications
 
 <div class="pt-15">
-  <div class="text-lg">
+  <!-- <div class="text-lg">
     <strong>Kai Ye</strong>
   </div>
   <div class="flex items-center justify-center gap-4 pt-2">
-    <a href="https://noncollapse.github.io/" target="_blank" class="text-blue-400 hover:text-blue-300 text-2xl" title="Homepage">
-      🏠
-    </a>
-    <a href="https://scholar.google.com/citations?user=a7G8Yo8AAAAJ" target="_blank" class="text-blue-400 hover:text-blue-300 text-2xl" title="Google Scholar">
-      🎓
-    </a>
-    <a href="https://huggingface.co/Kyleyee" target="_blank" class="text-blue-400 hover:text-blue-300 text-2xl" title="Hugging Face">
-      🤗
-    </a>
   </div>
   <div class="text-base opacity-80 pt-2">
     LSE | Stats-Powered AI
+  </div> -->
+  <div class="text-2xl opacity-80 pt-1">
+    Shijin Gong
   </div>
+  University of Science and Technology of China (USTC)
 </div>
 
 <div class="pt-20">
@@ -74,6 +69,8 @@ A Comprehensive Guide to Principles and Training Method
 
 ---
 layout: default
+name: toc
+routeAlias: toc
 ---
 
 # Table of Contents
@@ -90,8 +87,12 @@ layout: default
 - RLHF (Reinforcement Learning from Human Feedback)
 - RLVR (Reinforcement Learning with Verifiable Rewards)
 
+## Applications
+
 ---
 layout: section
+name: part-1
+routeAlias: part-1
 ---
 
 # Part 1: Foundations
@@ -172,6 +173,7 @@ LLM Development Timeline
 
 ---
 layout: section
+name: transformer-foundations
 ---
 
 # Transformer Foundations
@@ -887,6 +889,7 @@ $$
 
 ---
 layout: section
+name: transformer-architecture
 ---
 
 # Transformer Architecture
@@ -1784,6 +1787,8 @@ $X = \text{append}(X, \text{token}_{t+1})$
 
 ---
 layout: section
+name: part-2
+routeAlias: part-2
 ---
 
 # Part 2: Pre-training and Supervised Fine-Tuning
@@ -2312,6 +2317,8 @@ Label = -100 means "ignore this token in loss computation" (PyTorch convention)
 
 ---
 layout: section
+name: part-3
+routeAlias: part-3
 ---
 
 # Part 3: Reinforcement Learning For LLM
@@ -2336,6 +2343,8 @@ layout: section
 
 ---
 layout: section
+name: rlhf
+routeAlias: rlhf
 ---
 
 # RLHF: Reinforcement Learning From Human Feedback
@@ -2889,6 +2898,8 @@ Requires thousands of comparisons
 
 ---
 layout: section
+name: rlvr
+routeAlias: rlvr
 ---
 
 # RLVR: Reinforcement Learning with Verifiable Rewards
@@ -3108,6 +3119,8 @@ $$
 
 ---
 layout: section
+name: future
+routeAlias: future
 ---
 
 # Applications and Future
@@ -3160,6 +3173,262 @@ layout: section
 
 ---
 
+# Task-Specific RL Fine-Tuning
+
+<div class="text-sm leading-relaxed">
+
+LLMs are already strong enough to solve complex math reasoning and coding tasks.
+This suggests a broader hypothesis:
+if a task can be expressed in natural language with clear reasoning steps, LLMs may also solve it.
+
+</div>
+
+<div class="grid grid-cols-3 gap-4 mt-4 text-sm">
+  <div class="p-3 rounded border border-blue-200 bg-blue-50">
+    <div class="font-semibold mb-1">Strong foundation</div>
+    <div>Frontier LLMs show powerful general reasoning ability.</div>
+  </div>
+  <div class="p-3 rounded border border-amber-200 bg-amber-50">
+    <div class="font-semibold mb-1">Practical gap</div>
+    <div>Direct prompting often underperforms on domain-specific tasks.</div>
+  </div>
+  <div class="p-3 rounded border border-emerald-200 bg-emerald-50">
+    <div class="font-semibold mb-1">Key idea</div>
+    <div>Use RL to fine-tune LLMs toward task-specific objectives and rewards.</div>
+  </div>
+</div>
+
+<v-clicks>
+
+- Even flagship models can miss domain constraints without adaptation.
+- RL fine-tuning aligns model behavior with task-level metrics, not just fluency.
+- Next, we show concrete applications of this idea.
+
+</v-clicks>
+
+<div class="mt-3 text-xs leading-snug">
+  <div class="font-semibold mb-2">Specific examples (covered next)</div>
+  <div class="grid grid-cols-2 gap-2">
+    <div class="p-2 rounded border border-sky-200 bg-sky-50">
+      <b>READER</b>: reasoning-enhanced AI-text detection with explicit rationales.
+    </div>
+    <div class="p-2 rounded border border-indigo-200 bg-indigo-50">
+      <b>TabReason</b>: RL-enhanced tabular prediction with GRPO-style optimization.
+    </div>
+    <div class="p-2 rounded border border-rose-200 bg-rose-50">
+      <b>Medical application (coming)</b>: clinical reasoning with safety-aware reward design.
+    </div>
+    <div class="p-2 rounded border border-teal-200 bg-teal-50">
+      <b>...</b>
+    </div>
+  </div>
+</div>
+
+---
+
+# READER Task: Detect Human vs AI Text
+
+<div class="text-base mt-2">
+Goal: given a passage, predict <b>Human</b> or <b>AI-generated</b>, and explain <b>why</b>.
+</div>
+
+<div class="grid grid-cols-2 gap-4 mt-5 text-sm leading-relaxed">
+  <div class="p-4 rounded bg-blue-50 border border-blue-200">
+    <div class="font-semibold mb-2">Example A</div>
+    <div>
+      "I missed the last train, so I walked home in the rain and wrote down what I remembered from the day."
+    </div>
+  </div>
+  <div class="p-4 rounded bg-purple-50 border border-purple-200">
+    <div class="font-semibold mb-2">Example B</div>
+    <div>
+      "This narrative highlights resilience, emotional granularity, and a reflective arc that aligns with everyday human cognition."
+    </div>
+  </div>
+</div>
+
+<v-clicks>
+
+- Hard case: both can look fluent and coherent.
+- Existing neural detectors can be strong in-distribution but fragile under distribution shift.
+- READER adds reasoning traces, not just a binary label.
+
+</v-clicks>
+
+---
+
+# READER: Framework Overview
+
+<div class="flex justify-center items-center mt-4">
+  <img src="./figs/Reader.jpg" class="rounded shadow w-4/5" />
+</div>
+
+<div class="text-sm opacity-80 mt-3 text-center">
+Reasoning-enhanced detector: generate rationale first, then output label.
+</div>
+
+---
+
+# READER: Additional Framework View
+
+<div class="flex justify-center items-center mt-4">
+  <img src="./figs/Reader2.jpg" class="rounded shadow w-4/5" />
+</div>
+
+<div class="text-sm opacity-80 mt-3 text-center">
+</div>
+
+---
+
+# READER: READ Data and Key Results
+
+<div class="grid grid-cols-2 gap-6 mt-3 text-sm leading-relaxed">
+
+<div>
+
+### READ supervision data
+- Prompt high-capacity LLMs to generate structured rationales.
+- Keep only high-quality reasoning annotations for training.
+- Train READER with SFT and GRPO on this data.
+
+</div>
+
+<div>
+
+### Key results
+- READER has only **1.5B** parameters.
+- It outperforms existing detectors and prompted frontier LLM baselines.
+- Reported stronger results than GPT-5.2, Gemini-3-Pro, and DeepSeek-V3.2.
+- Competing baselines are about **100-1000x** larger.
+
+</div>
+
+</div>
+
+<div class="grid grid-cols-2 gap-4 mt-4">
+  <div class="-mt-11">
+    <img src="./figs/reader_tab1.jpg" class="rounded shadow w-4/5" />
+    <div class="text-xs opacity-75 mt-1 text-center">Main benchmark results</div>
+  </div>
+  <div>
+    <img src="./figs/reader_tab2.jpg" class="rounded shadow w-full" />
+    <div class="text-xs opacity-75 mt-1 text-center"></div>
+  </div>
+</div>
+
+---
+
+# TabReason: RL-Enhanced Tabular Prediction with LLMs
+
+<div class="text-sm leading-relaxed">
+
+**Paper:** <b>TabReason: A Reinforcement Learning-Enhanced Reasoning LLM for Explainable Tabular Data Prediction</b> (arXiv:2505.21807v3)
+
+</div>
+
+<div class="grid grid-cols-2 gap-6 mt-4 text-sm leading-relaxed">
+  <div>
+    <div class="font-semibold mb-2">Task setting</div>
+    <ul>
+      <li>Use tabular financial attributes to predict binary outcomes.</li>
+      <li>Datasets include credit scoring, fraud detection, distress prediction, and claim analysis.</li>
+      <li>Need both <b>accuracy</b> and <b>explainability</b> in high-stakes scenarios.</li>
+    </ul>
+  </div>
+  <div>
+    <div class="font-semibold mb-2">Core challenge</div>
+    <ul>
+      <li>Traditional tabular models can be strong but often opaque.</li>
+      <li>LLMs are interpretable but usually underperform on tabular prediction.</li>
+      <li>TabReason combines LLM reasoning with RL fine-tuning (GRPO).</li>
+    </ul>
+  </div>
+</div>
+
+---
+
+# TabReason Method: Pipeline Figure
+
+<div class="flex justify-center items-center h-[80%]">
+  <img src="./figs/tabreason_fig1.jpg" class="rounded shadow max-h-[68vh] w-auto" />
+</div>
+
+<div class="text-xs opacity-75 mt-1 text-center"></div>
+
+---
+
+# TabReason Method: Example, GRPO, Reward Design
+
+<div class="grid grid-cols-2 gap-6 text-sm leading-relaxed mt-4">
+
+<div>
+
+### 1) Reward design
+- TabReason uses weighted reward signals:
+
+$$R_i = 0.5\,r_{\text{format}} + 0.5\,r_{\text{valid}} + 1.0\,r_{\text{correct}}$$
+
+- Format reward: enforce structured reasoning/output template.
+- Validity reward: encourage logically consistent reasoning.
+- Correctness reward: strongest signal for final prediction quality.
+
+</div>
+
+<div>
+
+### 2) GRPO
+- Compute normalized advantage:
+
+$$\hat{A}_i = \frac{R_i - \mu}{\sigma}$$
+
+- Positive $\hat{A}_i$: increase probability of that output.
+- Negative $\hat{A}_i$: suppress that output.
+- Update with PPO-style clipping + KL regularization.
+
+</div>
+
+</div>
+
+<div class="text-sm leading-relaxed mt-3">
+
+<div class="font-semibold mb-1">3) Simple numerical example</div>
+
+<ul>
+  <li>In this toy example, each sub-reward is binary, so total rewards come from a small discrete set.</li>
+  <li>For one input, sample 8 candidate outputs with repeated rewards:
+    $R = [2.0, 1.5, 1.0, 1.0, 0.5, 1.5, 0.5, 0.0]$.
+  </li>
+  <li>Group mean and std:
+    $\mu = 1.00,\ \sigma = 0.612$.
+  </li>
+  <li>Normalized advantages:
+    $\hat{A}=[1.633,\ 0.816,\ 0,\ 0,\ -0.816,\ 0.816,\ -0.816,\ -1.633]$.
+  </li>
+  <li>Higher $\hat{A}$ outputs are reinforced; lower $\hat{A}$ outputs are suppressed.</li>
+</ul>
+
+</div>
+
+---
+
+# TabReason Results on Financial Benchmarks
+
+<div class="mt-3">
+    <ul>
+      <li>TabReason uses a relatively small <b>Qwen2.5-1.5B</b> base model.</li>
+      <li>Reported highest weighted F1 on <b>7/9</b> benchmark datasets.</li>
+      <li>Strong gains on more balanced sets (e.g., Australian, LendingClub).</li>
+      <li>Shows that RL-tuned reasoning can improve both prediction quality and interpretability.</li>
+    </ul>
+</div>
+
+<div class="mt-2">
+  <img src="./figs/tabreason_fig2.jpg" class="rounded shadow w-5/5 mx-auto" />
+  <div class="text-xs opacity-75 mt-1 text-center"></div>
+</div>
+
+---
+
 # Real-world Example: Code Assistant
 
 <div class="grid grid-cols-2 gap-4">
@@ -3206,6 +3475,8 @@ print(fibonacci(10))  # Output: 55
 
 ---
 layout: section
+name: challenges
+routeAlias: challenges
 ---
 
 # Challenges and Future of LLM
@@ -3392,6 +3663,3 @@ class: text-center
     <carbon-logo-github />
   </a>
 </div>
-
-
-
