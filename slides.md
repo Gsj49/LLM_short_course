@@ -3337,11 +3337,11 @@ routeAlias: future
 </div>
 
 ---
+layout: two-cols
+---
 # Real-world Example: Code Assistant
 
-<div class="grid grid-cols-2 gap-4">
-
-<div>
+::left::
 
 **Input Prompt**
 
@@ -3351,9 +3351,7 @@ calculate the nth Fibonacci number
 using dynamic programming optimization
 ```
 
-</div>
-
-<div>
+::right::
 
 **LLM Output**
 
@@ -3376,10 +3374,6 @@ def fibonacci(n):
 # Test
 print(fibonacci(10))  # Output: 55
 ```
-
-</div>
-
-</div>
 
 ---
 
@@ -3408,13 +3402,13 @@ if a task can be expressed in natural language with clear reasoning steps, LLMs 
   </div>
 </div>
 
-<v-clicks>
-
-- Even flagship models can miss domain constraints without adaptation.
-- RL fine-tuning aligns model behavior with task-level metrics, not just fluency.
-- Next, we show concrete applications of this idea.
-
-</v-clicks>
+<div class="mt-3 text-sm leading-relaxed">
+<ul>
+  <li>Even flagship models can miss domain constraints without adaptation.</li>
+  <li>RL fine-tuning aligns model behavior with task-level metrics, not just fluency.</li>
+  <li>Next, we show concrete applications of this idea.</li>
+</ul>
+</div>
 
 <div class="mt-3 text-xs leading-snug">
   <div class="font-semibold mb-2">Specific examples (covered next)</div>
@@ -3433,6 +3427,7 @@ if a task can be expressed in natural language with clear reasoning steps, LLMs 
     </div>
   </div>
 </div>
+
 ---
 
 # Medical Research
@@ -3627,15 +3622,18 @@ $$\hat{A}_i = \frac{R_i - \mu}{\sigma}$$
 
 </div>
 
-### 3) Simple numerical example
+<div class="grid grid-cols-1 gap-6 text-sm leading-relaxed mt-4">
 
-- In this toy example, each sub-reward is binary, so total rewards come from a small discrete set.
+### 3) Simple numerical example
 - For one input, sample 8 candidate outputs with repeated rewards: $R = [2.0, 1.5, 1.0, 1.0, 0.5, 1.5, 0.5, 0.0]$.
 - Group mean and std: $\mu = 1.00,\ \sigma = 0.612$.
 - Normalized advantages: $\hat{A}=[1.633,\ 0.816,\ 0,\ 0,\ -0.816,\ 0.816,\ -0.816,\ -1.633]$.
 - Higher $\hat{A}$ outputs are reinforced; lower $\hat{A}$ outputs are suppressed.
 
+</div>
+
 ---
+
 
 # TabReason Results on Financial Benchmarks
 
