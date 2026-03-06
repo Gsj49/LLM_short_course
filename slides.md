@@ -87,8 +87,6 @@ routeAlias: toc
 - RLHF (Reinforcement Learning from Human Feedback)
 - RLVR (Reinforcement Learning with Verifiable Rewards)
 
-## Applications
-
 ---
 layout: section
 name: part-1
@@ -904,18 +902,24 @@ name: transformer-architecture
 
 ## Core Components
 
+<div class="mb-2">
+  <a href="https://poloclub.github.io/transformer-explainer/" target="_blank" class="inline-block px-7 py-1 rounded bg-blue-600 text-white text-sm">
+    Transformer Explainer Visualization
+  </a>
+</div>
+
 - **Positional Encoding**
-  <div class="ml-4  mt--4">• Preserves sequence order information</div>
+  <div class="ml-4  mt--4 text-m">• Preserves sequence order information</div>
 
 - **Self-Attention Mechanism**
-  <div class="ml-4  mt--4">• Captures long-range dependencies</div>
-  <div class="ml-4  mt--1">• High parallel computation efficiency</div>
+  <div class="ml-4  mt--4 text-m">• Captures long-range dependencies</div>
+  <div class="ml-4  mt--1 text-m">• High parallel computation efficiency</div>
 
 - **Multi-Head Attention**
-  <div class="ml-4  mt--4">•  Learns representations from multiple subspaces</div>
+  <div class="ml-4  mt--4 text-m">•  Learns representations from multiple subspaces</div>
 
 - **Feed-Forward Neural Network**
-  <div class="ml-4  mt--4">• Non-linear transformations</div>
+  <div class="ml-4  mt--4 text-m">• Non-linear transformations</div>
 
 </div>
 
@@ -1985,120 +1989,6 @@ it tells you the probability of each token in the vocabulary being next.
 
 ---
 
-
-
-# Training Pipeline
-
-<style scoped>
-.slidev-code {
-  font-size: 1.5em !important;
-}
-.slidev-code .line {
-  line-height: 1.6 !important;
-}
-</style>
-
-````md magic-move
-```python
-"""
-═══════════════════════════════════════════════════════
-Step 1: Data Preparation
-First we collect massive text corpora from various sources
-such as Wikipedia, Books, and code repositories
-═══════════════════════════════════════════════════════
-"""
-
-data = load_corpus([
-    "CommonCrawl",   # Web pages
-    "Wikipedia",     # Knowledge base
-    "Books",         # Literature
-    "Code",          # Programming
-    "Academic"       # Research papers
-])
-
-tokenized_data = tokenize(data)  # Tokenize and clean
-
-```
-
-```python
-"""
-═══════════════════════════════════════════════════════
-Step 2: Pre-training
-With those data we use autoregressive next-token prediction
-Train the model to predict the next token at each position
-═══════════════════════════════════════════════════════
-"""
-
-model = Transformer(
-    vocab_size=50000,
-    hidden_size=4096,
-    num_layers=32,
-    num_heads=32
-)
-
-for batch in tokenized_data:
-    logits = model(batch.input)  # Forward pass
-    loss = cross_entropy(logits, batch.target)  # Compute loss
-    
-    loss.backward()  # Backpropagation
-    optimizer.step()  # Update weights
-
-```
-
-```python
-"""
-═══════════════════════════════════════════════════════
-Step 3: Supervised Fine-Tuning (SFT)
-Use high-quality human-written instruction-response pairs
-to teach the model to follow instructions
-═══════════════════════════════════════════════════════
-"""
-
-instruction_data = [
-    {
-        "input": "Explain quantum computing",
-        "output": "Quantum computing is..."
-    },
-]
-
-for example in instruction_data:
-    output = model(example.input)  # Generate response
-    loss = cross_entropy(output, example.output)  # Compare with target
-    
-    loss.backward()
-    optimizer.step()
-
-```
-
-```python
-"""
-══════════════════════════════════════════════════════════════════════════════════════════
-Step 4: Result - A model that understands instructions and generates quality responses
-══════════════════════════════════════════════════════════════════════════════════════════
-"""
-
-# Before SFT:
-input = "Explain neural networks："
-output = "Explain neural networks: Neural networks are a class of machine learning [continues with raw text]"
-
-# After SFT:
-input = "Explain neural networks"
-prompt = """
-User: Explain neural networks.
-Assistant:
-"""
-output = """
-Neural networks are computational models inspired by 
-the human brain. They consist of:
-1. Input layer - receives data
-2. Hidden layers - process information
-3. Output layer - produces predictions ...
-"""
-```
-````
-
----
-
 # Training Objective: Next-Token Prediction
 
 <div class="grid grid-cols-2 gap-8">
@@ -2186,6 +2076,169 @@ $$\mathcal{L}(\theta) = \sum_{t=1}^{T} -\log p_\theta(x_t \mid x_{<t})$$
 
 In practice: average over **batch** and over **tokens** to get the training loss
 </div>
+
+---
+
+# Pre-training = Next-Token Prediction on Massive Corpora
+
+Let the pre-training corpus be
+$$
+\mathcal D_{\text{pre}}=\{x^{(i)}\}_{i=1}^{N},\qquad x^{(i)}=(x^{(i)}_1,\ldots,x^{(i)}_{T_i}).
+$$
+
+The model is trained with next-token prediction over all tokens:
+$$
+\max_{\theta}\;\mathbb{E}_{x\sim \mathcal D_{\text{pre}}}\left[\sum_{t=1}^{T}\log p_{\theta}(x_t\mid x_{<t})\right].
+$$
+
+Equivalent loss form:
+$$
+\mathcal L_{\text{pre}}(\theta)
+=-\mathbb{E}_{x\sim \mathcal D_{\text{pre}}}\left[\sum_{t=1}^{T}\log p_{\theta}(x_t\mid x_{<t})\right].
+$$
+
+- Same objective as cross-entropy next-token prediction.
+- The key difference is scale: very large and diverse unlabeled corpora.
+
+---
+
+# From Pre-training to Foundation Models
+
+<div class="text-m leading-relaxed">
+After large-scale pre-training, a model usually acquires broad, transferable capabilities
+(language understanding, generation, and general reasoning). Such pre-trained backbones are commonly called
+<b>foundation models</b>.
+</div>
+
+<div class="grid grid-cols-2 gap-6 mt-4 text-m leading-relaxed">
+  <div>
+    <div class="font-semibold mb-2">What “foundation model” means</div>
+    <ul>
+      <li>Trained on massive, diverse corpora before task-specific adaptation.</li>
+      <li>Serves as a reusable base for instruction tuning, alignment, and downstream tasks.</li>
+      <li>Can be adapted via SFT, RLHF/RLVR, or domain-specific fine-tuning.</li>
+    </ul>
+  </div>
+  <div>
+    <div class="font-semibold mb-2">Examples (open models)</div>
+    <ul>
+      <li><b>Qwen2.5</b> base models (e.g., 7B/14B/32B/72B).</li>
+      <li><b>Llama 3.1</b> base models.</li>
+      <li><b>Mistral / Mixtral</b> base models.</li>
+      <li><b>Gemma</b> base models.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- <div class="text-xs opacity-75 mt-3"> -->
+<!-- Next: TabPFN shows the same idea in tabular data, i.e., a tabular foundation model. -->
+<!-- </div> -->
+
+<!-- --- -->
+
+
+---
+
+# TabPFN: A Foundation Model for Tabular Data
+
+<div class="text-m leading-relaxed">
+<b>Nature paper:</b> Hollmann, Noah, et al. "Accurate predictions on small data with a tabular foundation model." Nature 637.8045 (2025): 319-326.
+</div>
+
+<div class="text-sm mt-2 p-3 rounded border border-blue-200 bg-blue-50 leading-relaxed">
+  <b>Model:</b> <b>TabPFN</b> (<i>Tabular Prior-data Fitted Network</i>)<br>
+  Designed for tabular prediction with limited labeled data.
+</div>
+
+<div class="grid grid-cols-2 gap-6 mt-4 text-sm leading-relaxed">
+  <div>
+    <div class="font-semibold mb-2">Motivations</div>
+    <ul>
+      <li>Many real tabular tasks only have tens to thousands of labeled examples.</li>
+      <li>Traditional pipelines often require expensive model/hyperparameter search.</li>
+      <li>In practice, we want strong performance with minimal tuning.</li>
+    </ul>
+  </div>
+  <div>
+    <div class="font-semibold mb-2">Core idea of TabPFN</div>
+    <ul>
+      <li>Pretrain a transformer on many synthetic tabular tasks sampled from broad priors.</li>
+      <li>At inference, condition on training examples and predict test labels in-context.</li>
+      <li>This approximates Bayesian prediction without per-task gradient fine-tuning.</li>
+    </ul>
+  </div>
+</div>
+
+---
+
+# TabPFN: Visual Overview
+
+<div class="flex justify-center items-center mt-3">
+  <img src="/figs/tabpfn.jpg" class="rounded shadow w-4/5" />
+</div>
+
+---
+
+# TabPFN: Additional View
+
+<div class="flex justify-center items-center mt-3">
+  <img src="/figs/tabpfn2.jpg" class="rounded shadow w-4/5" />
+</div>
+
+---
+
+# Insights from TabPFN
+
+<div class="grid grid-cols-1 gap-6 mt-3 text-m leading-relaxed">
+  <div>
+    <div class="font-semibold mb-2">Key takeaways</div>
+    <ul>
+      <li>Foundation-model priors can work beyond text generation.</li>
+      <li>Small-data tabular prediction can benefit from pretraining on task distributions.</li>
+      <li>This opens a path to strong performance with simpler downstream workflows.</li>
+    </ul>
+  </div>
+</div>
+
+<div class="grid grid-cols-1 gap-6 mt-3 text-m leading-relaxed">
+  <div>
+    <div class="font-semibold mb-2">Future Work</div>
+    <ul>
+      <li>TabPFN can be used in <strong>time series</strong>: <br>
+        Hoo, Shi Bin, et al. "The tabular foundation model tabpfn outperforms specialized time series forecasting models based on simple features." NeurIPS workshop on time series in the age of large models. 2024.</li>
+      <li>'Real' foundation model for time series data</li>
+      <li>Foundation model for <strong>reinforcement learning</strong> (decision making)</li>
+    </ul>
+  </div>
+</div>
+
+---
+
+# SFT = Next-Token Prediction on instruction-response Pairs
+
+Let the supervised instruction data be
+$$
+\mathcal D_{\text{sft}}=\{(x^{(i)},y^{(i)})\}_{i=1}^{n}.
+$$
+
+For each pair, build a sequence $s^{(i)}=[x^{(i)};y^{(i)}]$ and apply a response mask $m_t$:
+$$
+m_t=
+\begin{cases}
+1,& s_t \in y^{(i)} \\
+0,& s_t \in x^{(i)}
+\end{cases}
+$$
+
+Then SFT optimizes masked next-token prediction:
+$$
+\mathcal L_{\text{sft}}(\theta)
+=-\mathbb{E}_{(x,y)\sim\mathcal D_{\text{sft}}}
+\left[\sum_{t} m_t\,\log p_{\theta}(s_t\mid s_{<t})\right].
+$$
+
+- It is still next-token prediction.
+- But supervision is task-specific: only target response tokens contribute to loss.
 
 ---
 
@@ -2317,70 +2370,115 @@ Label = -100 means "ignore this token in loss computation" (PyTorch convention)
 
 ---
 
-# Accurate Predictions on Small Data with a Tabular Foundation Model
+# Training Pipeline
 
-<div class="text-sm leading-relaxed">
-<b>Nature paper:</b> <i>Accurate predictions on small data with a tabular foundation model</i>.
-The model is <b>TabPFN</b> (Tabular Prior-data Fitted Network), designed for tabular prediction with limited labeled data.
-</div>
+<style scoped>
+.slidev-code {
+  font-size: 1.5em !important;
+}
+.slidev-code .line {
+  line-height: 1.6 !important;
+}
+</style>
 
-<div class="grid grid-cols-2 gap-6 mt-4 text-sm leading-relaxed">
-  <div>
-    <div class="font-semibold mb-2">Why this matters</div>
-    <ul>
-      <li>Many real tabular tasks only have tens to thousands of labeled examples.</li>
-      <li>Traditional pipelines often require expensive model/hyperparameter search.</li>
-      <li>In practice, we want strong performance with minimal tuning.</li>
-    </ul>
-  </div>
-  <div>
-    <div class="font-semibold mb-2">Core idea of TabPFN</div>
-    <ul>
-      <li>Pretrain a transformer on many synthetic tabular tasks sampled from broad priors.</li>
-      <li>At inference, condition on training examples and predict test labels in-context.</li>
-      <li>This approximates Bayesian prediction without per-task gradient fine-tuning.</li>
-    </ul>
-  </div>
-</div>
+````md magic-move
+```python
+"""
+═══════════════════════════════════════════════════════
+Step 1: Data Preparation
+First we collect massive text corpora from various sources
+such as Wikipedia, Books, and code repositories
+═══════════════════════════════════════════════════════
+"""
 
----
+data = load_corpus([
+    "CommonCrawl",   # Web pages
+    "Wikipedia",     # Knowledge base
+    "Books",         # Literature
+    "Code",          # Programming
+    "Academic"       # Research papers
+])
 
-# TabPFN: Visual Overview
+tokenized_data = tokenize(data)  # Tokenize and clean
 
-<div class="flex justify-center items-center mt-3">
-  <img src="/figs/tabpfn.jpg" class="rounded shadow w-4/5" />
-</div>
+```
 
----
+```python
+"""
+═══════════════════════════════════════════════════════
+Step 2: Pre-training
+With those data we use autoregressive next-token prediction
+Train the model to predict the next token at each position
+═══════════════════════════════════════════════════════
+"""
 
-# TabPFN: Additional View
+model = Transformer(
+    vocab_size=50000,
+    hidden_size=4096,
+    num_layers=32,
+    num_heads=32
+)
 
-<div class="flex justify-center items-center mt-3">
-  <img src="/figs/tabpfn2.jpg" class="rounded shadow w-4/5" />
-</div>
+for batch in tokenized_data:
+    logits = model(batch.input)  # Forward pass
+    loss = cross_entropy(logits, batch.target)  # Compute loss
+    
+    loss.backward()  # Backpropagation
+    optimizer.step()  # Update weights
 
----
+```
 
-# Why TabPFN Is Relevant Here
+```python
+"""
+═══════════════════════════════════════════════════════
+Step 3: Supervised Fine-Tuning (SFT)
+Use high-quality human-written instruction-response pairs
+to teach the model to follow instructions
+═══════════════════════════════════════════════════════
+"""
 
-<div class="grid grid-cols-2 gap-6 mt-3 text-sm leading-relaxed">
-  <div>
-    <div class="font-semibold mb-2">Key takeaways</div>
-    <ul>
-      <li>Foundation-model priors can work beyond text generation.</li>
-      <li>Small-data tabular prediction can benefit from pretraining on task distributions.</li>
-      <li>This opens a path to strong performance with simpler downstream workflows.</li>
-    </ul>
-  </div>
-  <div>
-    <div class="font-semibold mb-2">Bridge to Part 3</div>
-    <ul>
-      <li>Pretraining gives broad capability, but objectives still need alignment.</li>
-      <li>Reinforcement learning helps align models to task-level goals and constraints.</li>
-      <li>Next, we cover RLHF and RLVR for controllable model behavior.</li>
-    </ul>
-  </div>
-</div>
+instruction_data = [
+    {
+        "input": "Explain quantum computing",
+        "output": "Quantum computing is..."
+    },
+]
+
+for example in instruction_data:
+    output = model(example.input)  # Generate response
+    loss = cross_entropy(output, example.output)  # Compare with target
+    
+    loss.backward()
+    optimizer.step()
+
+```
+
+```python
+"""
+══════════════════════════════════════════════════════════════════════════════════════════
+Step 4: Result - A model that understands instructions and generates quality responses
+══════════════════════════════════════════════════════════════════════════════════════════
+"""
+
+# Before SFT:
+input = "Explain neural networks："
+output = "Explain neural networks: Neural networks are a class of machine learning [continues with raw text]"
+
+# After SFT:
+input = "Explain neural networks"
+prompt = """
+User: Explain neural networks.
+Assistant:
+"""
+output = """
+Neural networks are computational models inspired by 
+the human brain. They consist of:
+1. Input layer - receives data
+2. Hidden layers - process information
+3. Output layer - produces predictions ...
+"""
+```
+````
 
 ---
 layout: section
@@ -3239,6 +3337,51 @@ routeAlias: future
 </div>
 
 ---
+# Real-world Example: Code Assistant
+
+<div class="grid grid-cols-2 gap-4">
+
+<div>
+
+**Input Prompt**
+
+```markdown
+Write a Python function to
+calculate the nth Fibonacci number
+using dynamic programming optimization
+```
+
+</div>
+
+<div>
+
+**LLM Output**
+
+```python
+def fibonacci(n):
+    """
+    Calculate Fibonacci using dynamic programming
+    Time complexity: O(n)
+    Space complexity: O(1)
+    """
+    if n <= 1:
+        return n
+    
+    prev, curr = 0, 1
+    for _ in range(2, n + 1):
+        prev, curr = curr, prev + curr
+    
+    return curr
+
+# Test
+print(fibonacci(10))  # Output: 55
+```
+
+</div>
+
+</div>
+
+---
 
 # Task-Specific RL Fine-Tuning
 
@@ -3292,7 +3435,7 @@ if a task can be expressed in natural language with clear reasoning steps, LLMs 
 </div>
 ---
 
-# Medical
+# Medical Research
 
 <div class="text-sm leading-relaxed mb-2">
 Recent work shows that RLVR/GRPO is becoming a common recipe for medical reasoning:
@@ -3484,25 +3627,13 @@ $$\hat{A}_i = \frac{R_i - \mu}{\sigma}$$
 
 </div>
 
-<div class="text-sm leading-relaxed mt-3">
+### 3) Simple numerical example
 
-<div class="font-semibold mb-1">3) Simple numerical example</div>
-
-<ul>
-  <li>In this toy example, each sub-reward is binary, so total rewards come from a small discrete set.</li>
-  <li>For one input, sample 8 candidate outputs with repeated rewards:
-    $R = [2.0, 1.5, 1.0, 1.0, 0.5, 1.5, 0.5, 0.0]$.
-  </li>
-  <li>Group mean and std:
-    $\mu = 1.00,\ \sigma = 0.612$.
-  </li>
-  <li>Normalized advantages:
-    $\hat{A}=[1.633,\ 0.816,\ 0,\ 0,\ -0.816,\ 0.816,\ -0.816,\ -1.633]$.
-  </li>
-  <li>Higher $\hat{A}$ outputs are reinforced; lower $\hat{A}$ outputs are suppressed.</li>
-</ul>
-
-</div>
+- In this toy example, each sub-reward is binary, so total rewards come from a small discrete set.
+- For one input, sample 8 candidate outputs with repeated rewards: $R = [2.0, 1.5, 1.0, 1.0, 0.5, 1.5, 0.5, 0.0]$.
+- Group mean and std: $\mu = 1.00,\ \sigma = 0.612$.
+- Normalized advantages: $\hat{A}=[1.633,\ 0.816,\ 0,\ 0,\ -0.816,\ 0.816,\ -0.816,\ -1.633]$.
+- Higher $\hat{A}$ outputs are reinforced; lower $\hat{A}$ outputs are suppressed.
 
 ---
 
@@ -3524,48 +3655,66 @@ $$\hat{A}_i = \frac{R_i - \mu}{\sigma}$$
 
 ---
 
-# Real-world Example: Code Assistant
+# GRPO Theory: Gradient as a U-Statistic
 
-<div class="grid grid-cols-2 gap-4">
-
-<div>
-
-**Input Prompt**
-
-```markdown
-Write a Python function to
-calculate the nth Fibonacci number
-using dynamic programming optimization
-```
-
+<div class="text-m leading-relaxed mb-2">
 </div>
 
-<div>
+For a fixed prompt $x$ and $G$ i.i.d. output-reward pairs $\{(Y^{(g)}, Z^{(g)})\}_{g=1}^G$,
+the general policy-gradient estimator is:
 
-**LLM Output**
+$$
+\widehat{g}(x;\theta)=\frac{1}{G}\sum_{g=1}^{G}\nabla_{\theta}\log \pi_{\theta}(Y^{(g)}\mid x)\,[Z^{(g)}-C^{(g)}].
+$$
 
-```python
-def fibonacci(n):
-    """
-    Calculate Fibonacci using dynamic programming
-    Time complexity: O(n)
-    Space complexity: O(1)
-    """
-    if n <= 1:
-        return n
-    
-    prev, curr = 0, 1
-    for _ in range(2, n + 1):
-        prev, curr = curr, prev + curr
-    
-    return curr
+In GRPO, $C^{(g)}=\bar Z^{(-g)}=(G-1)^{-1}\sum_{k\ne g}Z^{(k)}$.
+We can show that $\widehat{g}_{\mathrm{GRPO}}(x;\theta)$ is a second-order U-statistic:
 
-# Test
-print(fibonacci(10))  # Output: 55
-```
+$$
+\widehat{g}_{\mathrm{GRPO}}(x;\theta)
+=\binom{G}{2}^{-1}
+\sum_{1\le i<j\le G}
+h\!\left((Y^{(i)},Z^{(i)}),(Y^{(j)},Z^{(j)})\right).
+$$
 
+$$
+h\!\left((Y^{(i)},Z^{(i)}),(Y^{(j)},Z^{(j)})\right)
+=\frac{1}{2}\Big[\nabla_{\theta}\log\pi_{\theta}(Y^{(i)}\mid x)-\nabla_{\theta}\log\pi_{\theta}(Y^{(j)}\mid x)\Big]\,(Z^{(i)}-Z^{(j)}).
+$$
+
+Key implication: GRPO’s gradient estimator can be analyzed with classical U-statistics tools (Hoeffding decomposition, variance/MSE rates, asymptotics).
+
+---
+
+# GRPO Theory: Main Results and Implications
+
+Zhou, Hongyi et al. “Demystifying Group Relative Policy Optimization: Its Policy Gradient is a U-Statistic.” (2026).
+
+- The GRPO policy-gradient estimator is a **second-order U-statistic**.
+- The analysis provides finite-sample error characterization for gradient estimation and policy suboptimality.
+- It establishes asymptotic results including oracle-equivalence and optimality properties.
+- It also derives a universal scaling-law perspective for selecting group size.
+
+<div class="mt-3 flex justify-center">
+  <img src="/figs/theory_roadmap.png" class="rounded shadow w-[92%] max-h-[40vh] object-contain" />
 </div>
 
+---
+
+# GRPO Theory: Suboptimality Gap and Theorem Snapshots
+
+<div class="text-m leading-relaxed mb-2">
+</div>
+
+Define the policy suboptimality gap: $\Delta(\pi)=\max _{\theta \in \Theta} \mathbb{E}^{\pi_\theta}(Z)-\mathbb{E}^\pi(Z).$
+
+<div class="grid grid-cols-2 gap-3 mt-2">
+  <img src="/figs/ustat1.jpg" class="rounded shadow w-full max-h-[24vh] object-contain" />
+  <img src="/figs/ustat2.jpg" class="rounded shadow w-full max-h-[24vh] object-contain" />
+</div>
+
+<div class="flex justify-center mt-2">
+  <img src="/figs/ustat3.jpg" class="rounded shadow w-[65%] max-h-[24vh] object-contain" />
 </div>
 
 ---
