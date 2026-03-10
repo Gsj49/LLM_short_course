@@ -2490,8 +2490,6 @@ routeAlias: part-3
 
 ---
 
-
-
 # Reinforcement Learning
 
 <div class="flex justify-center items-center mt--3">
@@ -2505,6 +2503,333 @@ routeAlias: part-3
 <img src="/figs/rl.png" class="w-5/5" />
 </div>
 
+
+---
+
+# Reinforcement Learning vs Machine Learning
+
+<div class="flex justify-center items-center mt-4">
+<img src="/figs/rl.jpg" class="w-4/5" />
+</div>
+
+---
+layout: two-cols-header
+---
+
+# Supervised Learning vs Reinforcement Learning
+
+::left::
+
+### Supervised Learning
+
+- Feature $x\in\mathcal{X}$, target $y\in\mathcal{Y}$
+- Predictor: $f_\theta(x)$
+
+Population objective:
+$$
+\text{Minimize } J(\theta)
+=
+\mathbb E_{(x,y)\sim\mathcal P}\big[\ell(f_\theta(x),y)\big]
+$$
+
+Sample objective:
+$$
+\hat J_n(\theta)
+=
+\frac{1}{n}\sum_{i=1}^n \ell(f_\theta(x_i),y_i)
+$$
+
+Gradient update:
+$$
+\theta_{t+1}
+=
+\theta_t-\eta\,\nabla_\theta \hat J_n(\theta_t)
+$$
+
+::right::
+
+### Policy-based Reinforcement Learning
+
+- Contexts $x\in\mathcal X$, actions $a\in\mathcal A$
+- Policy: $\pi_\theta(a\mid x)$
+- Mean reward:
+$$
+r(x,a):=\mathbb E[\tilde r\mid x,a]
+$$
+
+Population objective:
+$$
+\text{Maximize } J(\theta)
+=
+\mathbb E_{x\sim p(x),\;a\sim\pi_\theta(\cdot\mid x)}[r(x,a)]
+$$
+
+In practice, we usually do not have a differentiable sample loss.
+Instead, after sampling $a\sim\pi_\theta(\cdot\mid x)$, we only observe a reward sample $\tilde r$.
+
+Next we use an example to see why direct backpropagation is not available.
+
+---
+layout: two-cols-header
+---
+
+# Why not direct backpropagation?
+
+::left::
+
+### Supervised learning example
+
+For one sample $(x_i,y_i)$, we can compute
+$$
+\ell(f_\theta(x_i),y_i),
+$$
+which is an explicit differentiable function of $\theta$.
+
+So we can directly form
+$$
+\nabla_\theta \ell(f_\theta(x_i),y_i).
+$$
+
+::right::
+
+### Reinforcement learning example
+
+Suppose a policy chooses one of two ads:
+$$
+a\in\{\text{Ad 1},\text{Ad 2}\},\qquad
+a\sim\pi_\theta(\cdot\mid x).
+$$
+
+After showing the ad, we only observe a click reward
+$$
+\tilde r\in\{0,1\}.
+$$
+
+So from one interaction, we only get sampled feedback $(x,a,\tilde r)$,
+not the rewards of all possible actions.
+
+To learn from such data, we need a gradient formula whose sample
+depends only on the realized action $a$ and reward $\tilde r$.
+
+---
+
+# Deriving the Policy Gradient (1/3)
+<div>
+</div>
+
+In a contextual bandit setting,
+$$
+J(\theta)
+=
+\mathbb E_{x\sim p(x),\;a\sim\pi_\theta(\cdot\mid x)}[r(x,a)].
+$$
+
+If the action space $\mathcal A$ is discrete, then
+$$
+J(\theta)
+=
+\mathbb E_{x\sim p(x)}
+\left[
+\sum_{a\in\mathcal A}\pi_\theta(a\mid x)\,r(x,a)
+\right].
+$$
+
+This makes the dependence on $\theta$ explicit through the policy $\pi_\theta(a\mid x)$.
+
+---
+
+# Deriving the Policy Gradient (2/3)
+<div>
+</div>
+
+Differentiating with respect to $\theta$, and assuming we may interchange
+gradient and expectation,
+$$
+\nabla_\theta J(\theta)
+=
+\mathbb E_{x\sim p(x)}
+\left[
+\sum_{a\in\mathcal A}
+\nabla_\theta \pi_\theta(a\mid x)\,r(x,a)
+\right].
+$$
+
+This expression is correct, but it is not directly sample-based:
+for a realized context $x$, it still requires the rewards $r(x,a)$
+for all actions $a\in\mathcal A$.
+
+Use the log-derivative identity
+$$
+\nabla_\theta \pi_\theta(a\mid x)
+=
+\pi_\theta(a\mid x)\,\nabla_\theta\log\pi_\theta(a\mid x).
+$$
+
+Therefore,
+$$
+\nabla_\theta J(\theta)
+=
+\mathbb E_{x\sim p(x)}
+\left[
+\sum_{a\in\mathcal A}
+\pi_\theta(a\mid x)\,r(x,a)\,\nabla_\theta\log\pi_\theta(a\mid x)
+\right].
+$$
+
+---
+
+# Deriving the Policy Gradient (3/3)
+<div>
+</div>
+
+Now the sum is an expectation over $a\sim\pi_\theta(\cdot\mid x)$:
+$$
+\nabla_\theta J(\theta)
+=
+\mathbb E_{x\sim p(x),\;a\sim\pi_\theta(\cdot\mid x)}
+\big[r(x,a)\,\nabla_\theta\log\pi_\theta(a\mid x)\big].
+$$
+
+Unlike the previous form, this depends only on the sampled action $a$.
+
+Since $r(x,a)=\mathbb E[\tilde r\mid x,a]$,
+we also have
+$$
+\nabla_\theta J(\theta)
+=
+\mathbb E_{x\sim p(x),\;a\sim\pi_\theta(\cdot\mid x),\;\tilde r\mid x,a}
+\big[\tilde r\,\nabla_\theta\log\pi_\theta(a\mid x)\big].
+$$
+
+Thus, for tuple $(x_t, a_t, \tilde{r_t})$, the sample gradient
+$$
+g_t:=\tilde r_t\,\nabla_\theta\log\pi_{\theta_t}(a_t\mid x_t)
+$$
+is an unbiased estimator of $\nabla_\theta J(\theta_t)$, so we can update
+$$
+\theta_{t+1}=\theta_t+\eta\,g_t.
+$$
+
+
+---
+
+# Policy Gradient with a Baseline (1/2)
+<div>
+</div>
+
+For any function $b(x)$ that does not depend on the sampled action $a$, define
+$$
+g^{(b)}
+:=
+\big(\tilde r-b(x)\big)\,\nabla_\theta\log\pi_\theta(a\mid x).
+$$
+
+Its expectation is
+$$
+\mathbb E[g^{(b)}]
+=
+\mathbb E\!\left[\tilde r\,\nabla_\theta\log\pi_\theta(a\mid x)\right]
+-
+\mathbb E\!\left[b(x)\,\nabla_\theta\log\pi_\theta(a\mid x)\right].
+$$
+
+The second term is zero:
+$$
+\mathbb E\!\left[b(x)\,\nabla_\theta\log\pi_\theta(a\mid x)\right]
+=
+\mathbb E_{x\sim p(x)}\!\left[
+b(x)\sum_{a\in\mathcal A}\pi_\theta(a\mid x)\nabla_\theta\log\pi_\theta(a\mid x)
+\right]
+$$
+$$
+=
+\mathbb E_{x\sim p(x)}\!\left[
+b(x)\sum_{a\in\mathcal A}\nabla_\theta\pi_\theta(a\mid x)
+\right]
+=
+0.
+$$
+
+Therefore, $\mathbb E[g^{(b)}]=\nabla_\theta J(\theta).$ So subtracting any $b(x)$ independent of $a$ does not change the mean of the policy-gradient estimator.
+
+---
+
+# Policy Gradient with a Baseline (2/2)
+<div>
+</div>
+
+Let
+$$
+S:=\nabla_\theta\log\pi_\theta(a\mid x).
+$$
+
+Since $\mathbb E[g^{(b)}]=\nabla_\theta J(\theta)$,
+$$
+\mathrm{Var}(g^{(b)})
+=
+\mathbb E\!\left[\|(\tilde r-b(x))S\|_2^2\right]
+-
+\|\nabla_\theta J(\theta)\|_2^2.
+$$
+
+Thus the baseline does not affect the mean, but it changes the scale of
+the random factor $(\tilde r-b(x))$, and hence the variance.
+
+For each context $x$, the variance-minimizing baseline is
+$$
+b^*(x)
+=
+\frac{\mathbb E\!\left[\tilde r\,\|S\|_2^2\mid x\right]}
+{\mathbb E\!\left[\|S\|_2^2\mid x\right]}.
+$$
+
+A common practical choice is
+$$
+b(x)\approx \mathbb E[\tilde r\mid x],
+$$
+which leads to the advantage-style estimator
+$$
+\big(\tilde r-b(x)\big)\,\nabla_\theta\log\pi_\theta(a\mid x).
+$$
+
+---
+
+# LLM Reasoning Can Be Viewed as RL
+<div>
+</div>
+
+For each prompt $x$, the model samples an output sequence
+$
+y\sim\pi_\theta(\cdot\mid x),
+$
+where $y$ contains both the reasoning process and the final answer.
+
+Bandit view of LLM reasoning:
+- **Context**: prompt $x$
+- **Action**: whole output sequence $y$
+- **Policy**: $\pi_\theta(y\mid x)$
+- **Reward**: sequence-level feedback $\tilde r(x,y)$
+
+Training objective:
+$$
+\max_\theta\ J(\theta)
+=
+\mathbb E_{x\sim p(x),\,y\sim\pi_\theta(\cdot\mid x)}[\tilde r(x,y)].
+$$
+
+Example:
+- $x$: “Solve $17\times24$.”
+- $y$: a sampled reasoning trace and final answer
+- $\tilde r(x,y)=1$ if the final answer is correct, and $0$ otherwise
+
+---
+
+# LLM Reasoning
+
+<div class="flex flex-col justify-center items-center mt-4 gap-4">
+<img src="/figs/llm_reasoning.jpg" class="w-3/5" />
+<img src="/figs/llm_r2.jpg" class="w-4/5" />
+</div>
 
 ---
 layout: section
